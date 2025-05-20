@@ -1,2 +1,2 @@
-# PedagogicalRL
-multi-turn RL framework for aligning models to be tutors and not answerers
+# From Problem-Solving to Teaching Problem-Solving: Aligning LLMs with Pedagogy using Reinforcement Learning
+This repository will be updated with the code from the paper: From Problem-Solving to Teaching Problem-Solving: Aligning LLMs with Pedagogy using Reinforcement Learning
