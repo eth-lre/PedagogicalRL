@@ -1186,14 +1186,7 @@ class Classroom:
             ]
             rewards = [conv.get_end_rm_reward() for conv in conversations]
             rewards = [reward for reward in rewards if reward is not None]
-            if os.getenv("USE_OLD_MIN", "0") == "1":
-                minimum_reward = (
-                    min(rewards) - self.generation_cfg.extra_penalty_for_rejected_judges
-                    if len(rewards) > 0
-                    else 0.0
-                )
-            else:
-                minimum_reward = -self.generation_cfg.extra_penalty_for_rejected_judges
+            minimum_reward = -self.generation_cfg.extra_penalty_for_rejected_judges
 
             return minimum_reward
 

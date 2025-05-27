@@ -69,7 +69,7 @@ generation:
 
   # This turns on the hard lambda.
   extra_penalty_for_rejected_judges: 1.0 # This is the actual lambda we use.
-  ignore_penalty_for_rejected_judges: false # If we set this to false we get the soft lambda runs.
+  ignore_rejected_judge: false # If we set this to false we get the soft lambda runs.
 
   use_experimental_shared_memory: false
   

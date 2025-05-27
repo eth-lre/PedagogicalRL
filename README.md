@@ -1,18 +1,45 @@
-# 👨‍🏫 From Problem-Solving to Teaching Problem-Solving
-
+# 👨‍🏫 From Problem-Solving to Teaching Problem-Solving  
 ### *Aligning LLMs with Pedagogy using Reinforcement Learning*
-
-**What if your LLM could teach—rather than just answer?**
-This project provides a recipe to transform a standard instruction-tuned language model into a math tutor that actually teaches, using multi-turn **GRPO** in a classroom environemnt with a **synthetic student**.
+**What if your LLM could teach—rather than just answer?**  
+This project provides a recipe to transform a standard instruction-tuned language model into a math tutor that actually teaches, using multi-turn **GRPO** in a classroom environment with a **synthetic student**.
 
 LLMs today excel at solving problems, but good teaching is about **strategically withholding answers** and guiding learners through their own reasoning. This repo implements a scalable, annotation-free framework that aligns LLM behavior with **pedagogical principles** like Socratic questioning, helpful scaffolding, and solution withholding.
 
 We train 7B-sized open models to come close to closed-source models like LearnLM—**without any human labels**—and maintain performance on reasoning tasks like GSM8K and MATH500.
 
-> For details on implementation, memory management, vLLM usage, multi-node setup, and model loading strategies, see [technical.md](technical.md).
+> 🔧 For implementation details (multi-node setup, memory handling, vLLM coordination), see [technical.md](technical.md).  
+> 🔍 Explore tutor–student conversations here: [Conversation Visualizer](https://pedagogical-rl.vercel.app)
 
-🔗 **Paper**: [arxiv.org/abs/2505.15607](https://arxiv.org/abs/2505.15607)
-🔗 **Code License**: CC-BY-4.0
+📄 **Paper**: [arxiv.org/abs/2505.15607](https://arxiv.org/abs/2505.15607)  
+🧠 **Models**: We release two versions of our 7B tutor model:
+- 🤗 [eth-nlped/TutorRL-7B](https://huggingface.co/eth-nlped/TutorRL-7B) — standard version without internal planning  
+- 🤗 [eth-nlped/TutorRL-7B-think](https://huggingface.co/eth-nlped/TutorRL-7B-think) — enhanced with explicit `<think>` tags for interpretable planning
+
+🔓 **License**: CC-BY-4.0
+
+
+## 🧠 Core logic
+
+The reinforcement learning loop is implemented in [`src/classroom.py`](src/classroom.py), which simulates a multi-turn dialog between:
+
+- **Tutor (LLM under training)**
+- **Student (frozen LLM)**
+- **Judges (for leakage/helpfulness evaluation)**
+- **Reward calculator (post-dialog solve rate & pedagogy)**
+
+Each conversation follows a state machine:
+
+```
+
+START → TEACHER_TURN → STUDENT_TURN → TEACHER_TURN → ... → JUDGE_TURN → GENERATE_SOLUTION → REWARD_TURN → END
+
+````
+
+- The loop alternates between **tutor and student turns**
+- **Student turns are masked** during loss calculation
+- **Only the tutor model is updated** using GRPO
+- **Conversations are processed in large batches**
+- **Model weights are dynamically loaded/unloaded** across states to conserve memory
 
 ---
 
@@ -23,22 +50,22 @@ We train 7B-sized open models to come close to closed-source models like LearnLM
 conda create -n pedagogy python=3.11
 conda activate pedagogy
 
-# 2) install core deps
+# 2) install core dependencies
 pip install -r requirements.txt          # torch, trl, vllm, ...
 
-# 3) add your secrets to a .env file
+# 3) add your keys
 nano .env
-```
+````
 
 ---
 
 ## 🧪 Environment variables
 
-| Variable             | Purpose                                  |
-| -------------------- | ---------------------------------------- |
-| `HF_TOKEN`           | For pulling/pushing models on 🤗 Hub     |
-| `WANDB_API_KEY`      | Weights & Biases tracking (optional)     |
-| `OPENROUTER_API_KEY` | Optional, for routing through OpenRouter |
+| Variable             | Purpose                             |
+| -------------------- | ----------------------------------- |
+| `HF_TOKEN`           | Pull/push models from 🤗 Hub        |
+| `WANDB_API_KEY`      | Weights & Biases logging (optional) |
+| `OPENROUTER_API_KEY` | Optional: for LLMs via OpenRouter   |
 
 ---
 
@@ -60,19 +87,30 @@ accelerate launch \
   --config-name 7b.yaml
 ```
 
-🎛 Common CLI knobs:
+#### 🧩 Soft vs. Hard Pedagogy Mode
 
-| Flag                                                   | Description                              |
-| ------------------------------------------------------ | ---------------------------------------- |
-| `generation.extra_penalty_for_rejected_judges`         | λ — penalty for leaking solutions        |
-| `generation.number_judge_attempts=0`                   | λ = 0 (no pedagogy constraint)           |
-| `generation.use_thinking=true` / `force_thinking=true` | Enable `<think>` tags for tutor planning |
+Use the `generation.ignore_rejected_judge` flag:
+
+| Flag                          | Reward behavior                                             |
+| ----------------------------- | ----------------------------------------------------------- |
+| `ignore_rejected_judge=true`  | **Soft**: Apply a relative penalty `−λ` if rejected         |
+| `ignore_rejected_judge=false` | **Hard**: Override total reward with fixed `−λ` if rejected |
+
+🎛 Other common CLI knobs:
+
+| Flag                                                   | Description                                     |
+| ------------------------------------------------------ | ----------------------------------------------- |
+| `generation.extra_penalty_for_rejected_judges`         | λ — penalty magnitude                           |
+| `generation.number_judge_attempts=0`                   | λ = 0 (no pedagogy constraint)                  |
+| `generation.use_thinking=true` / `force_thinking=true` | Enable hidden `<think>` tags for tutor planning |
 
 ---
 
 ## 📈 Evaluation
 
 ### Pedagogical Benchmarks
+
+Evaluate on BigMath-style multi-turn dialogs:
 
 ```bash
 python eval.py --config-name Qwen2.5-7B-Instruct.yaml
@@ -97,26 +135,24 @@ lighteval vllm \
 ```
 .
 ├── config/
-│   ├── deepspeed/             # ZeRO configs
-│   ├── eval/                  # eval configs
-│   └── train_rl/7b.yaml       # RL training config
-├── prompt_templates/          # system + judge prompts
+│   ├── deepspeed/            # ZeRO configs
+│   ├── eval/                 # eval task configs
+│   └── train_rl/             # RL training configs
+├── prompt_templates/         # system + judge prompts
 ├── src/
-│   ├── classroom.py           # multi-agent training loop
-│   ├── grpo/                  # GRPO trainer logic
-│   ├── inference_providers/   # OpenRouter / Gemini adapters
-│   └── vllm/                  # vLLM helpers
-├── utils/                     # reward functions + logging
-├── train_rl.py                # main RL entry point
-├── train_sft.py               # SFT script
-└── start_rl_training.sh       # launcher for RL
+│   ├── classroom.py          # 🧠 Core RL loop (multi-agent dialog)
+│   ├── grpo/                 # GRPO reinforcement learning trainer
+│   ├── inference_providers/  # OpenRouter / Gemini adapters
+│   └── vllm/                 # vLLM helpers (multi-node, memory mgmt)
+├── utils/                    # reward functions, judge filters, logging
+├── train_rl.py               # Entry point for RL training
+├── train_sft.py              # Supervised fine-tuning entry
+└── start_rl_training.sh      # Launcher for RL
 ```
 
 ---
 
 ## 📄 Citation
-
-If you use this work, please cite:
 
 ```
 @misc{dinucujianu2025problemsolvingteachingproblemsolvingaligning,

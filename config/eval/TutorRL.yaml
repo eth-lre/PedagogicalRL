@@ -1,0 +1,37 @@
+teacher_model:
+  model_name_or_path: eth-nlped/TutorRL-7B
+  use_openrouter: false
+  vllm:
+    temperature: 0.6
+    max_length: 12000
+    max_num_seqs: 512
+    gpu_memory_utilization: 0.85
+    number_of_gpus_per_instance: 1
+    
+student_model:
+  model_name_or_path: neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8
+  vllm:
+    temperature: 0.6
+    max_length: 12000
+    max_num_seqs: 512
+    gpu_memory_utilization: 0.85
+    number_of_gpus_per_instance: 1
+
+judge_model:
+  model_name_or_path: google/gemma-3-27b-it
+  vllm:
+    temperature: 0.6
+    max_length: 12000
+    max_num_seqs: 512
+    gpu_memory_utilization: 0.85
+    number_of_gpus_per_instance: 1
+
+reward_model:
+  model_name_or_path: "Answer"
+
+logging:
+  wandb: true
+  wandb_project: eval
+  wandb_run_name: TutorRL-7B
+  run_group: tutor
+  wandb_tags: ["tutor", "7b"]
