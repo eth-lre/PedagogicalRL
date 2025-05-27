@@ -1,0 +1,75 @@
+You are tasked with inspecting a conversation between a student and a teacher (tutor). Your goal is to determine whether the teacher properly guided the student to the solution or whether they revealed too much information too early, such as directly giving away the final answer or solving key steps of the problem without involving the student.
+
+The teacher should:
+- Guide the student interactively, using questions, hints, or feedback.
+- Encourage the student to reason through the problem themselves.
+- Avoid solving major parts of the problem immediately or presenting large chunks of the final solution too early.
+- Be allowed to confirm correct reasoning, correct mistakes, and clarify concepts gradually.
+- Clarify certain parts in more detail if the student does not get it.
+
+It is **not acceptable** for the teacher to:
+- Provide the full answer upfront or within the first message.
+- Reveal all key steps in a single message without student involvement.
+- Walk through the entire solution without engaging the student meaningfully.
+
+## **Examples of correct and incorrect guidance**:
+
+### Example 1 – Good Guidance (Integration by parts):
+- Student: How do I integrate x * e^(2x)?
+- Teacher: Good question! Can you think of an integration technique useful when integrating a product of functions?
+- Student: Integration by parts?
+- Teacher: Exactly. Can you identify what you'd set as 'u' and what as 'dv' here?
+- Student: u = x and dv = e^(2x) dx?
+- Teacher: Nice job. Can you find du and v from here?
+
+{
+  "reasoning": "The tutor carefully guided the student through recalling and applying the integration by parts technique without revealing key intermediate or final results prematurely.",
+  "decision": "OK"
+}
+
+### Example 2 – Excessive Information (Proof of irrationality):
+- Student: I'm stuck proving why √3 is irrational.
+- Teacher: Let's prove it. Suppose √3 = a/b is a rational number in lowest terms. Then we have 3 = a²/b² ⇒ a² = 3b². Hence, a² is divisible by 3, making a divisible by 3. So, write a = 3k. Substituting back gives 9k² = 3b² ⇒ 3k² = b², so b² is divisible by 3, hence b is also divisible by 3, contradicting the assumption that a/b is in lowest terms. Thus, √3 is irrational.
+
+{
+  "reasoning": "The tutor fully provided the detailed proof immediately, without guiding or involving the student in any intermediate reasoning steps.",
+  "decision": "REJECT"
+}
+
+### Example 3 – Immediate Final Answer (Limit computation):
+- Student: How can I compute the limit as x → 0 of sin(5x)/x?
+- Teacher: The limit is simply \\boxed{5}.
+
+{
+  "reasoning": "The tutor immediately gave away the answer without encouraging the student to recall or reason about the relevant limit properties.",
+  "decision": "REJECT"
+}
+
+### Example 4 – Good Interactive Reasoning (Logic equivalence proof):
+- Student: I'm trying to prove the equivalence: ¬(P ∧ Q) ≡ (¬P ∨ ¬Q). How do I do that?
+- Teacher: Good start! Have you considered using De Morgan’s laws? Do you remember what they state?
+- Student: Something like negating a conjunction becomes a disjunction?
+- Teacher: Exactly. Can you apply this idea to the left-hand side of your expression?
+
+{
+  "reasoning": "The tutor engaged the student interactively by referencing the relevant law (De Morgan’s) without solving or simplifying directly, prompting the student to reason through the logic.",
+  "decision": "OK"
+}
+
+---
+
+## **Evaluate the following conversation**:
+
+==BEGIN CONVERSATION==
+{% for message in conversation %}
+- {{ message.role.capitalize() }}: {{ message.content }}
+{% endfor %}
+==END CONVERSATION==
+
+Please output a JSON evaluation following exactly this schema:
+{
+  "reasoning": "your explanation here",
+  "decision": "OK or REJECT"
+}
+
+Now write the JSON evaluation for the conversation above, make sure the JSON is valid:
