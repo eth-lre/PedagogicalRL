@@ -1,0 +1,44 @@
+model:
+  model_name_or_path: "Qwen/Qwen2.5-7B-Instruct"
+  tokenizer_name_or_path: "Qwen/Qwen2.5-7B-Instruct"
+  max_length: 16384
+  lora:
+    enable: false
+    rank: 256
+    alpha: 512
+    target_modules: "all-linear"
+    dropout: 0.01
+    bias: "none"
+
+dataset:
+  train_datasets: 
+    - name_or_path: "rd211/Pedagogical-SFT
+      split: "train"
+      ratio: 1.0
+
+  eval_datasets: 
+    - name_or_path: "rd211/Pedagogical-SFT"
+      split: "test"
+      ratio: 1.0
+
+  max_train_examples: -1
+  max_val_examples: -1
+
+logging:
+  wandb: true
+  wandb_project: "train-sft"
+  wandb_run_name: "Qwen2.5-7B-Instruct-SFT"
+  run_group: "7b"
+  wandb_tags: ["full-finetune", "7b"]
+  save_dir: "checkpoints"
+
+train:
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  per_device_train_batch_size: 1
+  lr_scheduler_type: "cosine"
+  optimizer: "paged_adamw_32bit"
+  epochs: 2
+  max_steps: -1
+  deepspeed_config_path: null
+seed: 42

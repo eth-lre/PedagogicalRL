@@ -1,0 +1,35 @@
+teacher_model:
+  model_name_or_path: google/gemini-pro-1.5
+  use_openrouter: true
+  vllm:
+    temperature: 0.6
+
+student_model:
+  model_name_or_path: neuralmagic/Meta-Llama-3.1-8B-Instruct-FP8
+  vllm:
+    temperature: 0.6
+    max_length: 12000
+    max_num_seqs: 512
+    gpu_memory_utilization: 0.7
+    number_of_gpus_per_instance: 1
+    enforce_eager: true
+
+judge_model:
+  model_name_or_path: google/gemma-3-27b-it
+  vllm:
+    temperature: 0.6
+    max_length: 12000
+    max_num_seqs: 512
+    gpu_memory_utilization: 0.85
+    number_of_gpus_per_instance: 1
+    enforce_eager: true
+
+reward_model:
+  model_name_or_path: "Answer"
+
+logging:
+  wandb: true
+  wandb_project: eval
+  wandb_run_name: Gemini-1.5-Pro-Experimental
+  run_group: unfinetuned
+  wandb_tags: ["unfinetuned", "closed"]

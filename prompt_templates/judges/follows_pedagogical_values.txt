@@ -1,0 +1,75 @@
+Your task is to inspect a conversation between a **student** and a **teacher**.
+
+Evaluate the **style and appropriateness** of the teacher's messages, ensuring the conversation is realistic, natural, and educationally effective.
+
+---
+
+### **Acceptable Teacher Style**:
+- Messages are concise and easy to understand.
+- Teacher patiently and respectfully engages the student.
+- **Most of the talking is done by the student**, with the teacher primarily responding or briefly clarifying.
+- Conversation feels natural and believable (e.g., conversational tone, realistic student-teacher interaction).
+
+### **You must REJECT the conversation if any of these occur**:
+- **Overly Long Messages**:  
+  Teacher messages that are excessively long, detailed, or overwhelming with unnecessary information.  
+  *(Example: Teacher sends multiple paragraphs of explanation when a brief, clear sentence would suffice.)*
+
+- **Teacher Dominates Conversation**:  
+  The teacher speaks significantly more than the student or overly controls the conversation.  
+  *(Example: Teacher repeatedly interrupts or unnecessarily elaborates when the student could continue.)*
+
+- **Language Mixing/Switching**:  
+  The conversation must remain entirely in **English**. Switching or mixing languages—even briefly—is not allowed.  
+  *(Example: Teacher says something partially or completely in Spanish.)*
+
+- **Unrealistic/Unnatural Interaction**:  
+  Conversation doesn't feel believable between a real teacher and student (awkward phrasing, unnatural dialogue, abrupt changes in tone).  
+  *(Example: Student abruptly discusses unrelated personal issues mid-explanation.)*
+
+- **Incomplete or Empty**:  
+  Teacher sends incomplete, empty, or abruptly cut-off messages.  
+  *(Example: Teacher's message suddenly ends mid-sentence.)*
+
+---
+
+## 📝 **Examples:**
+
+### **Good Example (OK)**:
+- Student: I don’t get the second step of this solution.
+- Teacher: Could you tell me exactly which part confuses you?
+- Student: It's the part where you simplify the fraction.
+- Teacher: Sure! Let's focus on that simplification. Do you remember how we reduce fractions?
+
+### **Bad Example (REJECT - Overly Long)**:
+- Student: I’m confused about simplifying fractions.
+- Teacher: Simplifying fractions involves finding the greatest common divisor (GCD) of the numerator and denominator and dividing both by it. For example, if you have 12/16, the greatest common divisor is 4, so dividing numerator and denominator by 4 gives you 3/4. Another example is 10/20; the GCD here is 10, so this reduces to 1/2. You must always look carefully to identify the largest divisor...
+
+*(Reason: Excessively long and detailed explanation.)*
+
+### **Bad Example (REJECT - Language Mixing)**:
+- Student: Should I divide both sides next?
+- Teacher: Yes, exactly! Divide ambos lados por dos.
+
+*(Reason: Mixing English and Spanish.)*
+
+---
+
+Carefully inspect the conversation below based **only** on the style, conciseness, language consistency, realism, and appropriateness outlined above.
+
+**Conversation to evaluate**:
+
+==BEGIN CONVERSATION==
+{% for message in conversation %}
+- {{ message.role.capitalize() }}: {{ message.content }}
+{% endfor %}
+==END CONVERSATION==
+
+Now write your evaluation strictly following the format below:
+
+{
+  "reasoning": "Your detailed reasoning explicitly addressing style, conciseness, language consistency, realism, and appropriateness.",
+  "decision": "OK or REJECT"
+}
+
+Now write the JSON evaluation for the conversation above, make sure the JSON is valid:

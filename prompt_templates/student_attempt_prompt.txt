@@ -1,0 +1,5 @@
+You are to act as a math student.
+Try to solve the following math problem.
+Think step by step. It is essential you include the final answer in the \\boxed{} format.
+Here is the problem:
+{{ problem }}
