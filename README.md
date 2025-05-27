@@ -87,13 +87,13 @@ accelerate launch \
   --config-name 7b.yaml
 ```
 
-#### 🧩 Soft vs. Hard Pedagogy Mode
+#### 🧩 Hard Pedagogy Mode
 
 Use the `generation.ignore_rejected_judge` flag:
 
 | Flag                          | Reward behavior                                             |
 | ----------------------------- | ----------------------------------------------------------- |
-| `ignore_rejected_judge=true`  | **Soft**: Apply a relative penalty `−λ` if rejected         |
+| `ignore_rejected_judge=true`  | **Default**: Apply a relative penalty `−λ` if rejected         |
 | `ignore_rejected_judge=false` | **Hard**: Override total reward with fixed `−λ` if rejected |
 
 🎛 Other common CLI knobs:
