@@ -18,6 +18,15 @@ We train 7B-sized open models to come close to closed-source models like LearnLM
 🔓 **License**: CC-BY-4.0
 
 
+---
+
+<div align="center">
+  <img src="images/diagram.png" alt="System diagram" style="max-height: 600px; height: auto; width: auto; max-width: 100%; vertical-align: middle;"/>
+</div>
+
+---
+
+
 ## 🧠 Core logic
 
 The reinforcement learning loop is implemented in [`src/classroom.py`](src/classroom.py), which simulates a multi-turn dialog between:
