@@ -78,7 +78,7 @@ from vllm import RequestOutput
 from src.utils.utils import incremental_state_dict
 from src.vllm.client import sample_conversations, wait_batch
 from src.utils.shared_memory import create_shared_state_dict, get_shareable_version
-from src.utils.utils import init_logger
+from src.utils.utils import init_logger, _ForwardRedirection
 from src.grpo.config import ClassroomGRPOConfig
 
 logger = init_logger()
@@ -345,6 +345,8 @@ class ClassroomGRPOTrainer(Trainer):
         )
         self.epsilon = args.epsilon
         self.use_liger_loss = args.use_liger_loss
+        if self.use_liger_loss:
+            self._forward_redirection = _ForwardRedirection()
 
         # Tracks the number of iterations (forward + backward passes), including those within a gradient accumulation cycle.
         self._step = 0
@@ -1149,7 +1151,7 @@ class ClassroomGRPOTrainer(Trainer):
             raise ValueError("The GRPOTrainer does not support returning outputs")
         torch.cuda.empty_cache()
 
-        if self.use_liger_loss:
+        if not self.use_liger_loss:
             return self.compute_old_loss(
                 model, inputs, return_outputs, num_items_in_batch
             )
@@ -1177,15 +1179,17 @@ class ClassroomGRPOTrainer(Trainer):
             modifier_rank=None,
         ):
             # compute loss and metrics using liger grpo loss
-            loss, metrics = self.liger_grpo_loss(
-                _input=last_hidden_state,
-                lin_weight=unwrapped_model.lm_head.weight,
-                selected_token_ids=completion_ids[:, 1:],
-                attention_mask=(completion_mask * assistant_mask)[:, 1:],
-                advantages=inputs["advantages"],
-                # bias=unwrapped_model.lm_head.bias,
-                ref_per_token_logps=inputs["ref_per_token_logps"],
-                old_per_token_logps=inputs["old_per_token_logps"],
+            loss, metrics = self._forward_redirection(
+                self.model,
+                unwrapped_model,
+                self.liger_grpo_loss,
+                last_hidden_state,
+                unwrapped_model.lm_head.weight,
+                completion_ids[:, 1:],
+                (completion_mask * assistant_mask)[:, 1:],
+                inputs["advantages"],
+                inputs["ref_per_token_logps"],
+                inputs["old_per_token_logps"],
             )
 
         # Extract metrics from the liger_grpo_loss output
