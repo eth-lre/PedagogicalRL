@@ -32,3 +32,4 @@ math-verify
 google-generativeai
 psutil
 liger-kernel==0.5.8
+flash-attn==2.7.4.post1
